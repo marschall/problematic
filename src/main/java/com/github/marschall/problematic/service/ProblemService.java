@@ -12,6 +12,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AccessFlag;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class ProblemService {
@@ -138,11 +138,29 @@ public class ProblemService {
 
   public Object problem5() {
     // regex matching
-    return isNumeric("1234567890.0") ? "true" : false;
+    return problem5(100);
+  }
+  
+  public Object problem5(int strength) {
+    if (strength < 0) {
+      throw new IllegalArgumentException();
+    }
+    // regex matching
+    String input;
+    if (strength > 10) {
+      input = "1".repeat(strength - 10) + "1234567890";
+    } else {
+      input = "1234567890".substring(0, strength);
+    }
+    return isNumeric(input + "1234567890.0") ? "true" : false;
   }
 
   private static boolean isNumeric(String s) {
+    // try to trigger catastrophic backtracking, ReDoS
     return s.matches("(\\d|\\d\\d)+");
+//    return s.matches("(\\d+)+[0-9]");
+//    return s.matches("(\\d|\\d[0-9])+");
+//    return s.matches("(\\d+)+");
   }
 
   public Object problem6() {
@@ -169,7 +187,7 @@ public class ProblemService {
     // too many classes
     var constantPoolBuilder = ConstantPoolBuilder.of();
     var classEntry = constantPoolBuilder.classEntry(
-        ClassDesc.of(this.getClass().getPackageName(), "Generated" + this.classCounter.incrementAndGet()));
+            ClassDesc.of(this.getClass().getPackageName(), "Generated" + this.classCounter.incrementAndGet()));
     var classFile = ClassFile.of();
     byte[] byteCode = classFile.build(classEntry, constantPoolBuilder, classBuilder -> {
       classBuilder.withFlags(AccessFlag.FINAL);
@@ -177,17 +195,21 @@ public class ProblemService {
     MethodHandles.lookup().defineClass(byteCode);
     return "OK";
   }
-
+  
   public Object problem10() throws IOException {
+    return problem10(10_000);
+  }
+
+  public Object problem10(int strength) throws IOException {
     // OuputStreamWriter
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     Map<String, Object> map = new HashMap<>();
-    List<Integer> value = List.of(1, 2, 3);
-    for (int i = 0; i < 1_000; i++) {
+    List<String> value = Collections.nCopies(1_000, "json");
+    for (int i = 0; i < strength; i++) {
       map.put(Integer.toString(i), value);
     }
     try (var writer = new OutputStreamWriter(bos, UTF_8)) {
-      new ObjectMapper().writeValue(writer, map);
+      SimpleJsonSerializer.serializeMap(map, writer);
     }
     return "OK";
   }
@@ -200,6 +222,25 @@ public class ProblemService {
       isSymlink &= Files.isSymbolicLink(p);
     }
     return isSymlink ? "failed" : "OK";
+  }
+  
+  public Object problem12() {
+    return problem12(44);
+  }
+
+  public Object problem12(int strength) {
+    if (strength < 0) {
+      throw new IllegalArgumentException();
+    }
+    // recursion
+    return Integer.toString(fib(strength));
+  }
+
+  static int fib(int i) {
+    if (i <= 1) {
+      return i;
+    }
+    return fib(i - 1) + fib(i - 2);
   }
 
 }
