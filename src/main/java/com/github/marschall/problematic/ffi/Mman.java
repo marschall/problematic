@@ -12,222 +12,178 @@ import java.util.stream.*;
 import static java.lang.foreign.ValueLayout.*;
 import static java.lang.foreign.MemoryLayout.PathElement.*;
 
-public class Mman {
+public class Mman extends Mman$shared {
 
-	Mman() {
-		// Should not be called directly
-	}
+    Mman() {
+        // Should not be called directly
+    }
 
-	static final Arena LIBRARY_ARENA = Arena.ofAuto();
-	static final boolean TRACE_DOWNCALLS = Boolean.getBoolean("jextract.trace.downcalls");
+    static final Arena LIBRARY_ARENA = Arena.ofAuto();
 
-	static void traceDowncall(String name, Object... args) {
-		String traceArgs = Arrays.stream(args).map(Object::toString).collect(Collectors.joining(", "));
-		System.out.printf("%s(%s)\n", name, traceArgs);
-	}
+    static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup()
+            .or(Linker.nativeLinker().defaultLookup());
 
-	static MemorySegment findOrThrow(String symbol) {
-		return SYMBOL_LOOKUP.find(symbol).orElseThrow(() -> new UnsatisfiedLinkError("unresolved symbol: " + symbol));
-	}
+    private static final int PROT_READ = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define PROT_READ 1
+     * }
+     */
+    public static int PROT_READ() {
+        return PROT_READ;
+    }
+    private static final int PROT_WRITE = (int)2L;
+    /**
+     * {@snippet lang=c :
+     * #define PROT_WRITE 2
+     * }
+     */
+    public static int PROT_WRITE() {
+        return PROT_WRITE;
+    }
+    private static final int MAP_SHARED = (int)1L;
+    /**
+     * {@snippet lang=c :
+     * #define MAP_SHARED 1
+     * }
+     */
+    public static int MAP_SHARED() {
+        return MAP_SHARED;
+    }
 
-	static MethodHandle upcallHandle(Class<?> fi, String name, FunctionDescriptor fdesc) {
-		try {
-			return MethodHandles.lookup().findVirtual(fi, name, fdesc.toMethodType());
-		}
-		catch (ReflectiveOperationException ex) {
-			throw new AssertionError(ex);
-		}
-	}
+    private static class mmap {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            Mman.C_POINTER,
+            Mman.C_POINTER,
+            Mman.C_LONG,
+            Mman.C_INT,
+            Mman.C_INT,
+            Mman.C_INT,
+            Mman.C_LONG
+        );
 
-	static MemoryLayout align(MemoryLayout layout, long align) {
-		return switch (layout) {
-			case PaddingLayout p -> p;
-			case ValueLayout v -> v.withByteAlignment(align);
-			case GroupLayout g -> {
-				MemoryLayout[] alignedMembers = g.memberLayouts()
-					.stream()
-					.map(m -> align(m, align))
-					.toArray(MemoryLayout[]::new);
-				yield g instanceof StructLayout ? MemoryLayout.structLayout(alignedMembers)
-						: MemoryLayout.unionLayout(alignedMembers);
-			}
-			case SequenceLayout s -> MemoryLayout.sequenceLayout(s.elementCount(), align(s.elementLayout(), align));
-		};
-	}
+        public static final MemorySegment ADDR = SYMBOL_LOOKUP.findOrThrow("mmap");
 
-	static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup().or(Linker.nativeLinker().defaultLookup());
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
 
-	public static final ValueLayout.OfBoolean C_BOOL = ValueLayout.JAVA_BOOLEAN;
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
+     * }
+     */
+    public static FunctionDescriptor mmap$descriptor() {
+        return mmap.DESC;
+    }
 
-	public static final ValueLayout.OfByte C_CHAR = ValueLayout.JAVA_BYTE;
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
+     * }
+     */
+    public static MethodHandle mmap$handle() {
+        return mmap.HANDLE;
+    }
 
-	public static final ValueLayout.OfShort C_SHORT = ValueLayout.JAVA_SHORT;
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
+     * }
+     */
+    public static MemorySegment mmap$address() {
+        return mmap.ADDR;
+    }
 
-	public static final ValueLayout.OfInt C_INT = ValueLayout.JAVA_INT;
+    /**
+     * {@snippet lang=c :
+     * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
+     * }
+     */
+    public static MemorySegment mmap(MemorySegment __addr, long __len, int __prot, int __flags, int __fd, long __offset) {
+        var mh$ = mmap.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("mmap", __addr, __len, __prot, __flags, __fd, __offset);
+            }
+            return (MemorySegment)mh$.invokeExact(__addr, __len, __prot, __flags, __fd, __offset);
+        } catch (Error | RuntimeException ex) {
+           throw ex;
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
 
-	public static final ValueLayout.OfLong C_LONG_LONG = ValueLayout.JAVA_LONG;
+    private static class munmap {
+        public static final FunctionDescriptor DESC = FunctionDescriptor.of(
+            Mman.C_INT,
+            Mman.C_POINTER,
+            Mman.C_LONG
+        );
 
-	public static final ValueLayout.OfFloat C_FLOAT = ValueLayout.JAVA_FLOAT;
+        public static final MemorySegment ADDR = SYMBOL_LOOKUP.findOrThrow("munmap");
 
-	public static final ValueLayout.OfDouble C_DOUBLE = ValueLayout.JAVA_DOUBLE;
+        public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
+    }
 
-	public static final AddressLayout C_POINTER = ValueLayout.ADDRESS
-		.withTargetLayout(MemoryLayout.sequenceLayout(java.lang.Long.MAX_VALUE, JAVA_BYTE));
+    /**
+     * Function descriptor for:
+     * {@snippet lang=c :
+     * extern int munmap(void *__addr, size_t __len)
+     * }
+     */
+    public static FunctionDescriptor munmap$descriptor() {
+        return munmap.DESC;
+    }
 
-	public static final ValueLayout.OfLong C_LONG = ValueLayout.JAVA_LONG;
+    /**
+     * Downcall method handle for:
+     * {@snippet lang=c :
+     * extern int munmap(void *__addr, size_t __len)
+     * }
+     */
+    public static MethodHandle munmap$handle() {
+        return munmap.HANDLE;
+    }
 
-	private static final int PROT_READ = (int) 1L;
+    /**
+     * Address for:
+     * {@snippet lang=c :
+     * extern int munmap(void *__addr, size_t __len)
+     * }
+     */
+    public static MemorySegment munmap$address() {
+        return munmap.ADDR;
+    }
 
-	/**
-	 * {@snippet lang = c : * #define PROT_READ 1
-	 * }
-	 */
-	public static int PROT_READ() {
-		return PROT_READ;
-	}
-
-	private static final int PROT_WRITE = (int) 2L;
-
-	/**
-	 * {@snippet lang = c : * #define PROT_WRITE 2
-	 * }
-	 */
-	public static int PROT_WRITE() {
-		return PROT_WRITE;
-	}
-
-	private static final int MAP_SHARED = (int) 1L;
-
-	/**
-	 * {@snippet lang = c : * #define MAP_SHARED 1
-	 * }
-	 */
-	public static int MAP_SHARED() {
-		return MAP_SHARED;
-	}
-
-	private static class mmap {
-
-		public static final FunctionDescriptor DESC = FunctionDescriptor.of(Mman.C_POINTER, Mman.C_POINTER, Mman.C_LONG,
-				Mman.C_INT, Mman.C_INT, Mman.C_INT, Mman.C_LONG);
-
-		public static final MemorySegment ADDR = Mman.findOrThrow("mmap");
-
-		public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-
-	}
-
-	/**
-	 * Function descriptor for:
-	 * {@snippet lang = c
-	 * : * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
-	 * }
-	 */
-	public static FunctionDescriptor mmap$descriptor() {
-		return mmap.DESC;
-	}
-
-	/**
-	 * Downcall method handle for:
-	 * {@snippet lang = c
-	 * : * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
-	 * }
-	 */
-	public static MethodHandle mmap$handle() {
-		return mmap.HANDLE;
-	}
-
-	/**
-	 * Address for:
-	 * {@snippet lang = c
-	 * : * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
-	 * }
-	 */
-	public static MemorySegment mmap$address() {
-		return mmap.ADDR;
-	}
-
-	/**
-	 * {@snippet lang = c
-	 * : * extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
-	 * }
-	 */
-	public static MemorySegment mmap(MemorySegment __addr, long __len, int __prot, int __flags, int __fd,
-			long __offset) {
-		var mh$ = mmap.HANDLE;
-		try {
-			if (TRACE_DOWNCALLS) {
-				traceDowncall("mmap", __addr, __len, __prot, __flags, __fd, __offset);
-			}
-			return (MemorySegment) mh$.invokeExact(__addr, __len, __prot, __flags, __fd, __offset);
-		}
-		catch (Throwable ex$) {
-			throw new AssertionError("should not reach here", ex$);
-		}
-	}
-
-	private static class munmap {
-
-		public static final FunctionDescriptor DESC = FunctionDescriptor.of(Mman.C_INT, Mman.C_POINTER, Mman.C_LONG);
-
-		public static final MemorySegment ADDR = Mman.findOrThrow("munmap");
-
-		public static final MethodHandle HANDLE = Linker.nativeLinker().downcallHandle(ADDR, DESC);
-
-	}
-
-	/**
-	 * Function descriptor for:
-	 * {@snippet lang = c : * extern int munmap(void *__addr, size_t __len)
-	 * }
-	 */
-	public static FunctionDescriptor munmap$descriptor() {
-		return munmap.DESC;
-	}
-
-	/**
-	 * Downcall method handle for:
-	 * {@snippet lang = c : * extern int munmap(void *__addr, size_t __len)
-	 * }
-	 */
-	public static MethodHandle munmap$handle() {
-		return munmap.HANDLE;
-	}
-
-	/**
-	 * Address for:
-	 * {@snippet lang = c : * extern int munmap(void *__addr, size_t __len)
-	 * }
-	 */
-	public static MemorySegment munmap$address() {
-		return munmap.ADDR;
-	}
-
-	/**
-	 * {@snippet lang = c : * extern int munmap(void *__addr, size_t __len)
-	 * }
-	 */
-	public static int munmap(MemorySegment __addr, long __len) {
-		var mh$ = munmap.HANDLE;
-		try {
-			if (TRACE_DOWNCALLS) {
-				traceDowncall("munmap", __addr, __len);
-			}
-			return (int) mh$.invokeExact(__addr, __len);
-		}
-		catch (Throwable ex$) {
-			throw new AssertionError("should not reach here", ex$);
-		}
-	}
-
-	private static final int MAP_ANON = (int) 32L;
-
-	/**
-	 * {@snippet lang = c : * #define MAP_ANON 32
-	 * }
-	 */
-	public static int MAP_ANON() {
-		return MAP_ANON;
-	}
-
+    /**
+     * {@snippet lang=c :
+     * extern int munmap(void *__addr, size_t __len)
+     * }
+     */
+    public static int munmap(MemorySegment __addr, long __len) {
+        var mh$ = munmap.HANDLE;
+        try {
+            if (TRACE_DOWNCALLS) {
+                traceDowncall("munmap", __addr, __len);
+            }
+            return (int)mh$.invokeExact(__addr, __len);
+        } catch (Error | RuntimeException ex) {
+           throw ex;
+        } catch (Throwable ex$) {
+           throw new AssertionError("should not reach here", ex$);
+        }
+    }
+    private static final int MAP_ANON = (int)32L;
+    /**
+     * {@snippet lang=c :
+     * #define MAP_ANON 32
+     * }
+     */
+    public static int MAP_ANON() {
+        return MAP_ANON;
+    }
 }
+

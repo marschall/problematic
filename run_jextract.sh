@@ -3,7 +3,7 @@
 set -u
 set -e
 
-JEXTRACT_HOME=${HOME}/bin/java/jextract-22/
+JEXTRACT_HOME=${HOME}/bin/java/jextract-25/
 
 ${JEXTRACT_HOME}/bin/jextract \
   --output src/main/java \
