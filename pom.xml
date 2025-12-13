@@ -132,6 +132,11 @@
       <artifactId>log4j-jul</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jcl</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <distributionManagement>
@@ -180,7 +185,17 @@
         <configuration>
           <systemPropertyVariables>
             <java.util.logging.manager>org.apache.logging.log4j.jul.LogManager</java.util.logging.manager>
+            <org.apache.logging.log4j.jul.Log4jBridgeHandler.propagateLevels>true</org.apache.logging.log4j.jul.Log4jBridgeHandler.propagateLevels>
           </systemPropertyVariables>
+          <!--
+            prevent JFR from logging to stdout [0.242s][info   ][jfr,startup] Use jcmd 88403 JFR.dump name=1 to copy recording data to file.
+            https://bugs.openjdk.org/browse/JDK-8244190
+           -->
+          <argLine>
+            -Xcheck:jni
+            -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=100m
+            -Xlog:jfr+startup=error
+          </argLine>
         </configuration>
       </plugin>
       <plugin>
