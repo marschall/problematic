@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CrashServiceTests {
-  
+
   private CrashService service;
 
   @BeforeEach
@@ -15,8 +15,13 @@ class CrashServiceTests {
   }
 
   @Test
-  void test() {
+  void crash1() {
     assertThrows(OutOfMemoryError.class, this.service::crash1);
+  }
+
+  @Test
+  void crash2() {
+    assertThrows(OutOfMemoryError.class, this.service::crash2);
   }
 
 }
