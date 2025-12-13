@@ -6,7 +6,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <inceptionYear>2025</inceptionYear>
   <name>Problematic</name>
-  <description>A J collection of code that exhibits problematic runtime behavior.</description>
+  <description>A collection of code that exhibits problematic runtime behavior.</description>
 
   <url>https://github.com/marschall/problematic</url>
 
@@ -49,7 +49,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>7.0.1</version>
+        <version>7.0.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
