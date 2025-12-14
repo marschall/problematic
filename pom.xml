@@ -60,22 +60,10 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>tools.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>3.0.3</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>tools.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
@@ -193,7 +181,7 @@
            -->
           <argLine>
             -Xcheck:jni
-            -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=100m
+            -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=5m,settings=profile
             -Xlog:jfr+startup=error
           </argLine>
         </configuration>

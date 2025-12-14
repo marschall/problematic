@@ -1,5 +1,7 @@
 package com.github.marschall.problematic.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,11 @@ class ProblemServiceTests {
   void problem5() {
     this.service.problem5();
   }
+  
+  @Test
+  void problem9() throws IllegalAccessException {
+    this.service.problem9();
+  }
 
   @Test
   void problem10() throws IOException {
@@ -37,6 +44,21 @@ class ProblemServiceTests {
   @Test
   void problem11() throws IOException {
     this.service.problem11();
+  }
+  
+  @Test
+  void problem12() throws IOException {
+    this.service.problem12();
+  }
+
+  @Test
+  void fib() {
+    assertEquals(0, ProblemService.fib(0));
+    assertEquals(1, ProblemService.fib(1));
+    assertEquals(1, ProblemService.fib(2));
+    assertEquals(2, ProblemService.fib(3));
+    assertEquals(3, ProblemService.fib(4));
+    assertEquals(5, ProblemService.fib(5));
   }
 
   @Test
