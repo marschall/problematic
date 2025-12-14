@@ -39,4 +39,9 @@ class ProblemServiceTests {
     this.service.problem11();
   }
 
+  @Test
+  void problem13() throws IOException {
+    this.service.problem13(1);
+  }
+
 }

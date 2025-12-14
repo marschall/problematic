@@ -8,10 +8,15 @@ import java.io.OutputStreamWriter;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.constantpool.ConstantPoolBuilder;
 import java.lang.constant.ClassDesc;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AccessFlag;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -174,8 +179,7 @@ public class ProblemService {
     byte[] byteCode = classFile.build(classEntry, constantPoolBuilder, classBuilder -> {
       classBuilder.withFlags(AccessFlag.FINAL);
     });
-    MethodHandles.lookup().defineClass(byteCode);
-    return "OK";
+    return MethodHandles.lookup().defineClass(byteCode);
   }
 
   public Object problem10() throws IOException {
@@ -189,7 +193,7 @@ public class ProblemService {
     try (var writer = new OutputStreamWriter(bos, UTF_8)) {
       new ObjectMapper().writeValue(writer, map);
     }
-    return "OK";
+    return bos.size();
   }
 
   public Object problem11() throws IOException {
@@ -200,6 +204,29 @@ public class ProblemService {
       isSymlink &= Files.isSymbolicLink(p);
     }
     return isSymlink ? "failed" : "OK";
+  }
+  
+  public Object problem13() throws IOException {
+    return problem13(1_000_000);
+  }
+
+  Object problem13(int strength) throws IOException {
+    long totalRead = 0L;
+    try (var arena = Arena.ofConfined();
+         var fileChannel = FileChannel.open(Path.of("/dev/random"), StandardOpenOption.READ)) {
+      long bufferSize = 1L;
+      MemorySegment memorySegment = arena.allocate(bufferSize);
+      ByteBuffer byteBuffer = memorySegment.asByteBuffer();
+      for (int i = 0; i < strength; i++) {
+        byteBuffer.clear();
+        int read = fileChannel.read(byteBuffer);
+        if (read != bufferSize) {
+          throw new IllegalStateException();
+        }
+        totalRead += read;
+      }
+    }
+    return totalRead;
   }
 
 }
