@@ -61,10 +61,10 @@ public class ProblemService {
         Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
         this.barrier.await();
       } catch (InterruptedException e) {
-        LOG.info("interrupted, existing", e);
+        LOG.debug("interrupted, existing", e);
         return;
       } catch (BrokenBarrierException e) {
-        LOG.info("broken barrier, existing", e);
+        LOG.debug("broken barrier, existing", e);
         return;
       }
     }
