@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.constantpool.ConstantPoolBuilder;
 import java.lang.constant.ClassDesc;
@@ -17,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -188,23 +190,37 @@ public class ProblemService {
     return "OK";
   }
 
-  public Object problem9() throws IllegalAccessException {
+  public Object problem9() {
     // too many classes
-    var constantPoolBuilder = ConstantPoolBuilder.of();
-    var classEntry = constantPoolBuilder.classEntry(
-            ClassDesc.of(this.getClass().getPackageName(), "Generated" + this.classCounter.incrementAndGet()));
-    var classFile = ClassFile.of();
-    byte[] byteCode = classFile.build(classEntry, constantPoolBuilder, classBuilder -> {
-      classBuilder.withFlags(AccessFlag.FINAL);
-    });
-    return MethodHandles.lookup().defineClass(byteCode);
+    return problem9(1_000);
   }
   
-  public Object problem10() throws IOException {
+  public Object problem9(int strength) {
+    // too many classes
+    var constantPoolBuilder = ConstantPoolBuilder.of();
+    List<Class<?>> classes = new ArrayList<>(strength);
+    var lookup = MethodHandles.lookup();
+    for (int i = 0; i < strength; i++) {
+      var classEntry = constantPoolBuilder.classEntry(
+          ClassDesc.of(this.getClass().getPackageName(), "Generated" + this.classCounter.incrementAndGet()));
+      var classFile = ClassFile.of();
+      byte[] byteCode = classFile.build(classEntry, constantPoolBuilder, classBuilder -> {
+        classBuilder.withFlags(AccessFlag.FINAL);
+      });
+      try {
+        classes.add(lookup.defineClass(byteCode));
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return classes.hashCode();
+  }
+  
+  public Object problem10() {
     return problem10(10_000);
   }
 
-  public Object problem10(int strength) throws IOException {
+  public Object problem10(int strength) {
     // OuputStreamWriter
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     Map<String, Object> map = new HashMap<>();
@@ -213,12 +229,14 @@ public class ProblemService {
       map.put(Integer.toString(i), value);
     }
     try (var writer = new OutputStreamWriter(bos, UTF_8)) {
-      SimpleJsonSerializer.serializeMap(map, writer);
+        SimpleJsonSerializer.serializeMap(map, writer);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
     return bos.size();
   }
 
-  public Object problem11() throws IOException {
+  public Object problem11() {
     // Too many exceptions
     boolean isSymlink = true;
     Path p = Path.of("/typo");
@@ -247,11 +265,11 @@ public class ProblemService {
     return fib(i - 1) + fib(i - 2);
   }
 
-  public Object problem13() throws IOException {
+  public Object problem13() {
     return problem13(1_000_000);
   }
 
-  Object problem13(int strength) throws IOException {
+  Object problem13(int strength) {
     long totalRead = 0L;
     try (var arena = Arena.ofConfined();
          var fileChannel = FileChannel.open(Path.of("/dev/random"), StandardOpenOption.READ)) {
@@ -266,6 +284,8 @@ public class ProblemService {
         }
         totalRead += read;
       }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
     return totalRead;
   }
