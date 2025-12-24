@@ -16,4 +16,9 @@ public class ProblematicConfiguration {
     return new CrashService();
   }
 
+  @Bean
+  public CacheBean cacheBean() {
+    return new CacheBean();
+  }
+
 }
