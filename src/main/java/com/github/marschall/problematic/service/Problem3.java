@@ -1,0 +1,35 @@
+package com.github.marschall.problematic.service;
+
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class Problem3 implements Problem {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+  @Override
+  public Object withHighStrenght() {
+    return withStrenght(1024 * 1024);
+  }
+
+  @Override
+  public Object withLowStrenght() {
+    return withStrenght(10);
+  }
+
+  private Object withStrenght(int strength) {
+    // excessive debug logging
+    for (int i = 0; i < strength; i++) {
+      LOG.debug("at iteration: " + i);
+    }
+    return "OK";
+  }
+
+  @Override
+  public ProblemType type() {
+    return ProblemType.PROBLEM_3;
+  }
+
+}

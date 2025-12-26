@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class ProblemServiceTests {
 
@@ -16,23 +18,14 @@ class ProblemServiceTests {
     this.service = new ProblemService();
   }
 
-  @Test
-  void problem3() {
-    this.service.problem3();
+  @ParameterizedTest
+  @EnumSource(value = ProblemType.class, names = {"PROBLEM_1", "PROBLEM_2", "PROBLEM_3", "PROBLEM_4", "PROBLEM_5"})
+  void withLowStrength(ProblemType problemType) {
+    this.service.withLowStrength(problemType);
   }
 
   @Test
-  void problem4() {
-    this.service.problem4();
-  }
-
-  @Test
-  void problem5() {
-    this.service.problem5();
-  }
-  
-  @Test
-  void problem9() throws IllegalAccessException {
+  void problem9() {
     this.service.problem9();
   }
 
@@ -45,7 +38,7 @@ class ProblemServiceTests {
   void problem11() throws IOException {
     this.service.problem11();
   }
-  
+
   @Test
   void problem12() throws IOException {
     this.service.problem12();

@@ -20,18 +20,17 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -49,12 +48,20 @@ public class ProblemService {
   private final Thread backgroundThread;
 
   private final AtomicInteger classCounter;
+  
+  private final Map<ProblemType, Problem> problems;
 
   ProblemService() {
     this.barrier = new CyclicBarrier(2);
     this.backgroundThread = new Thread(this::spin, "background-thread");
     this.backgroundThread.setDaemon(true);
     this.classCounter = new AtomicInteger();
+    this.problems = new EnumMap<>(ProblemType.class);
+    this.problems.put(ProblemType.PROBLEM_1, new Problem1());
+    this.problems.put(ProblemType.PROBLEM_2, new Problem2());
+    this.problems.put(ProblemType.PROBLEM_3, new Problem3());
+    this.problems.put(ProblemType.PROBLEM_4, new Problem4());
+    this.problems.put(ProblemType.PROBLEM_5, new Problem5());
   }
 
   private void spin() {
@@ -81,93 +88,30 @@ public class ProblemService {
   void stopBackgroundThread() {
     this.backgroundThread.interrupt();
   }
-
-  public Object problem1() {
-    // 1 MB live set
-    // -> allocation pressure
-    byte[][] buffers = new byte[1024][];
-    for (int i = 0; i < 1024 * 100; i++) {
-      for (int j = 0; j < buffers.length; j++) {
-        buffers[j] = new byte[1024];
-      }
-    }
-    return buffers;
-  }
-
-  public Object problem2() {
-    // allocate until we get OutOfMemoryError
-    // remove from live set and add new
-    // -> lots of GC churn due to high heap occupancy
-    List<byte[]> buffers = new LinkedList<>();
-    byte[] buffer = tryAllocate(1024);
-    while (buffer != null) {
-      buffers.add(buffer);
-      buffer = tryAllocate(1024);
-    }
-
-    for (int i = 0; i < 1024 * 1024; i++) {
-      buffers.remove(0);
-      buffer = tryAllocate(1024);
-      if (buffer != null) {
-        buffers.add(buffer);
-      }
-    }
-
-    return buffers;
-  }
-
-  private static byte[] tryAllocate(int size) {
-    try {
-      return new byte[size];
-    } catch (OutOfMemoryError e) {
-      return null;
-    }
-  }
-
-  public Object problem3() {
-    // excessive debug logging
-    for (int i = 0; i < 1024 * 1024; i++) {
-      LOG.debug("at iteration: " + i);
-    }
-    return "OK";
-  }
-
-  public Object problem4() {
-    // logger lookup
-    for (int i = 0; i < 1024 * 1024; i++) {
-      Log logger = LogFactory.getLog(MethodHandles.lookup().lookupClass());
-      if (logger.isDebugEnabled()) {
-        LOG.debug("at iteration: {}", i);
-      }
-    }
-    return "OK";
-  }
-
-  public Object problem5() {
-    // regex matching
-    return problem5(100);
-  }
   
-  public Object problem5(int strength) {
-    if (strength < 0) {
-      throw new IllegalArgumentException();
+  public Object withLowStrength(ProblemType problemType) {
+    Problem problem = this.problems.get(Objects.requireNonNull(problemType));
+    if (problem == null) {
+      throw new UnsupportedOperationException("Problem: " + problemType + " not supported");
     }
-    // regex matching
-    String input;
-    if (strength > 10) {
-      input = "1".repeat(strength - 10) + "1234567890";
-    } else {
-      input = "1234567890".substring(0, strength);
-    }
-    return isNumeric(input + "1234567890.0") ? "true" : false;
+    return problem.withLowStrenght();
   }
 
-  private static boolean isNumeric(String s) {
-    // try to trigger catastrophic backtracking, ReDoS
-    return s.matches("(\\d|\\d\\d)+");
-//    return s.matches("(\\d+)+[0-9]");
-//    return s.matches("(\\d|\\d[0-9])+");
-//    return s.matches("(\\d+)+");
+  public Object withHighStrength(ProblemType problemType) {
+    Problem problem = this.problems.get(Objects.requireNonNull(problemType));
+    if (problem == null) {
+      throw new UnsupportedOperationException("Problem: " + problemType + " not supported");
+    }
+    return problem.withHighStrenght();
+  }
+
+  public Object withHighStrengthOthersLow(ProblemType highStrengthType) {
+    int result = 0;
+    for (Problem problem : this.problems.values()) {
+      Object problemResult = problem.type() == highStrengthType ? problem.withHighStrenght() : problem.withLowStrenght();
+      result += problemResult.hashCode();
+    }
+    return result;
   }
 
   public Object problem6() {
