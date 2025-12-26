@@ -1,6 +1,6 @@
 package com.github.marschall.problematic.service;
 
-public interface Problem {
+interface Problem {
 
   Object withHighStrenght();
 

@@ -3,7 +3,7 @@ package com.github.marschall.problematic.service;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class Problem2 implements Problem {
+final class Problem2 implements Problem {
 
   @Override
   public Object withHighStrenght() {

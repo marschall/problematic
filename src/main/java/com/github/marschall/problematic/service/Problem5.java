@@ -1,6 +1,6 @@
 package com.github.marschall.problematic.service;
 
-public final class Problem5 implements Problem {
+final class Problem5 implements Problem {
 
   @Override
   public Object withHighStrenght() {

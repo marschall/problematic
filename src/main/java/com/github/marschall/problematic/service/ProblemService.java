@@ -1,35 +1,21 @@
 package com.github.marschall.problematic.service;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
-import java.lang.classfile.ClassFile;
-import java.lang.classfile.constantpool.ConstantPoolBuilder;
-import java.lang.constant.ClassDesc;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.AccessFlag;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,21 +33,23 @@ public class ProblemService {
 
   private final Thread backgroundThread;
 
-  private final AtomicInteger classCounter;
-  
   private final Map<ProblemType, Problem> problems;
 
   ProblemService() {
     this.barrier = new CyclicBarrier(2);
     this.backgroundThread = new Thread(this::spin, "background-thread");
     this.backgroundThread.setDaemon(true);
-    this.classCounter = new AtomicInteger();
     this.problems = new EnumMap<>(ProblemType.class);
     this.problems.put(ProblemType.PROBLEM_1, new Problem1());
     this.problems.put(ProblemType.PROBLEM_2, new Problem2());
     this.problems.put(ProblemType.PROBLEM_3, new Problem3());
     this.problems.put(ProblemType.PROBLEM_4, new Problem4());
     this.problems.put(ProblemType.PROBLEM_5, new Problem5());
+    this.problems.put(ProblemType.PROBLEM_9, new Problem9());
+    this.problems.put(ProblemType.PROBLEM_10, new Problem10());
+    this.problems.put(ProblemType.PROBLEM_11, new Problem11());
+    this.problems.put(ProblemType.PROBLEM_12, new Problem12());
+    this.problems.put(ProblemType.PROBLEM_13, new Problem13());
   }
 
   private void spin() {
@@ -132,106 +120,6 @@ public class ProblemService {
   public Object problem8() {
     // too many threads
     return "OK";
-  }
-
-  public Object problem9() {
-    // too many classes
-    return problem9(1_000);
-  }
-  
-  public Object problem9(int strength) {
-    // too many classes
-    var constantPoolBuilder = ConstantPoolBuilder.of();
-    List<Class<?>> classes = new ArrayList<>(strength);
-    var lookup = MethodHandles.lookup();
-    for (int i = 0; i < strength; i++) {
-      var classEntry = constantPoolBuilder.classEntry(
-          ClassDesc.of(this.getClass().getPackageName(), "Generated" + this.classCounter.incrementAndGet()));
-      var classFile = ClassFile.of();
-      byte[] byteCode = classFile.build(classEntry, constantPoolBuilder, classBuilder -> {
-        classBuilder.withFlags(AccessFlag.FINAL);
-      });
-      try {
-        classes.add(lookup.defineClass(byteCode));
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return classes.hashCode();
-  }
-  
-  public Object problem10() {
-    return problem10(10_000);
-  }
-
-  public Object problem10(int strength) {
-    // OuputStreamWriter
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Map<String, Object> map = new HashMap<>();
-    List<String> value = Collections.nCopies(1_000, "json");
-    for (int i = 0; i < strength; i++) {
-      map.put(Integer.toString(i), value);
-    }
-    try (var writer = new OutputStreamWriter(bos, UTF_8)) {
-        SimpleJsonSerializer.serializeMap(map, writer);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    return bos.size();
-  }
-
-  public Object problem11() {
-    // Too many exceptions
-    boolean isSymlink = true;
-    Path p = Path.of("/typo");
-    for (int i = 0; i < 1024; i++) {
-      isSymlink &= Files.isSymbolicLink(p);
-    }
-    return isSymlink ? "failed" : "OK";
-  }
-
-  public Object problem12() {
-    return problem12(44);
-  }
-
-  public Object problem12(int strength) {
-    if (strength < 0) {
-      throw new IllegalArgumentException();
-    }
-    // recursion
-    return Integer.toString(fib(strength));
-  }
-
-  static int fib(int i) {
-    if (i <= 1) {
-      return i;
-    }
-    return fib(i - 1) + fib(i - 2);
-  }
-
-  public Object problem13() {
-    return problem13(1_000_000);
-  }
-
-  Object problem13(int strength) {
-    long totalRead = 0L;
-    try (var arena = Arena.ofConfined();
-         var fileChannel = FileChannel.open(Path.of("/dev/random"), StandardOpenOption.READ)) {
-      long bufferSize = 1L;
-      MemorySegment memorySegment = arena.allocate(bufferSize);
-      ByteBuffer byteBuffer = memorySegment.asByteBuffer();
-      for (int i = 0; i < strength; i++) {
-        byteBuffer.clear();
-        int read = fileChannel.read(byteBuffer);
-        if (read != bufferSize) {
-          throw new IllegalStateException();
-        }
-        totalRead += read;
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    return totalRead;
   }
 
 }
