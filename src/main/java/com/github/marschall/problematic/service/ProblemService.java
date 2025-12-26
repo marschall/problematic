@@ -1,14 +1,6 @@
 package com.github.marschall.problematic.service;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandles;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
@@ -82,7 +74,7 @@ public class ProblemService {
     if (problem == null) {
       throw new UnsupportedOperationException("Problem: " + problemType + " not supported");
     }
-    return problem.withLowStrenght();
+    return problem.withStrength(problem.getLowStrength());
   }
 
   public Object withHighStrength(ProblemType problemType) {
@@ -90,13 +82,14 @@ public class ProblemService {
     if (problem == null) {
       throw new UnsupportedOperationException("Problem: " + problemType + " not supported");
     }
-    return problem.withHighStrenght();
+    return problem.withStrength(problem.getHighStrength());
   }
 
   public Object withHighStrengthOthersLow(ProblemType highStrengthType) {
     int result = 0;
     for (Problem problem : this.problems.values()) {
-      Object problemResult = problem.type() == highStrengthType ? problem.withHighStrenght() : problem.withLowStrenght();
+      int strength = problem.type() == highStrengthType ? problem.getHighStrength() : problem.getLowStrength();
+      Object problemResult = problem.withStrength(strength);
       result += problemResult.hashCode();
     }
     return result;

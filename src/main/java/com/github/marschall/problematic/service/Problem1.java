@@ -5,16 +5,17 @@ import java.util.Arrays;
 final class Problem1 implements Problem {
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1024 * 100);
+  public int getHighStrength() {
+    return 1024 * 100;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(1024);
+  public int getLowStrength() {
+    return 1024;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
     // 1 MB live set
     // -> allocation pressure
     byte[][] buffers = new byte[1024][];

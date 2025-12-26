@@ -6,16 +6,17 @@ import java.nio.file.Path;
 final class Problem11 implements Problem {
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(10_000);
+  public int getHighStrength() {
+    return 10_000;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
     // Too many exceptions
     boolean isSymlink = true;
     var path = Path.of("/typo");

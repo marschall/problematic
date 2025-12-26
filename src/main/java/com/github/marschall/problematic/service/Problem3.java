@@ -10,16 +10,17 @@ final class Problem3 implements Problem {
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1024 * 1024);
+  public int getHighStrength() {
+    return 1024 * 1024;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
     // excessive debug logging
     for (int i = 0; i < strength; i++) {
       LOG.debug("at iteration: " + i);

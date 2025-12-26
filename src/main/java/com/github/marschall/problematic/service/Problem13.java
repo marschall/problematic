@@ -12,17 +12,18 @@ import java.nio.file.StandardOpenOption;
 final class Problem13 implements Problem {
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1_000_000);
+  public int getHighStrength() {
+    return 1_000_000;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
-
+  @Override
+  public Object withStrength(int strength) {
+    // single byte reads
     long totalRead = 0L;
     try (var arena = Arena.ofConfined();
          var fileChannel = FileChannel.open(Path.of("/dev/random"), StandardOpenOption.READ)) {

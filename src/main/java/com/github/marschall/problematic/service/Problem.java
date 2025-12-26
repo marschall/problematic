@@ -2,9 +2,11 @@ package com.github.marschall.problematic.service;
 
 interface Problem {
 
-  Object withHighStrenght();
+  int getHighStrength();
+  
+  int getLowStrength();
 
-  Object withLowStrenght();
+  Object withStrength(int strength);
 
   ProblemType type();
 

@@ -4,19 +4,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 final class Problem2 implements Problem {
+  
+  private static final int SKIP = 1;
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1024 * 1024);
+  public int getHighStrength() {
+    return 1024 * 1024;
   }
 
   @Override
-  public Object withLowStrenght() {
+  public int getLowStrength() {
     // suppress OutOfMemoryError
-    return new Object();
+    return SKIP;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
+    if (strength == SKIP) {
+      // suppress OutOfMemoryError
+      return new Object();
+    }
     // allocate until we get OutOfMemoryError
     // remove from live set and add new
     // -> lots of GC churn due to high heap occupancy

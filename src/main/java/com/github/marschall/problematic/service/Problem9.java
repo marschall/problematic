@@ -18,16 +18,17 @@ final class Problem9 implements Problem {
   }
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1000);
+  public int getHighStrength() {
+    return 1000;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
     // too many classes
     var constantPoolBuilder = ConstantPoolBuilder.of();
     List<Class<?>> classes = new ArrayList<>(strength);

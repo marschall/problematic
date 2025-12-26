@@ -8,16 +8,17 @@ import org.apache.commons.logging.LogFactory;
 final class Problem4 implements Problem {
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(1024 * 1024);
+  public int getHighStrength() {
+    return 1024 * 1024;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
+  @Override
+  public Object withStrength(int strength) {
     // logger lookup
     for (int i = 0; i < strength; i++) {
       Log logger = LogFactory.getLog(MethodHandles.lookup().lookupClass());

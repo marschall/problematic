@@ -3,17 +3,17 @@ package com.github.marschall.problematic.service;
 final class Problem5 implements Problem {
 
   @Override
-  public Object withHighStrenght() {
-    return withStrenght(100);
+  public int getHighStrength() {
+    return 1000;
   }
 
   @Override
-  public Object withLowStrenght() {
-    return withStrenght(10);
+  public int getLowStrength() {
+    return 10;
   }
 
-  private Object withStrenght(int strength) {
-
+  @Override
+  public Object withStrength(int strength) {
     if (strength < 0) {
       throw new IllegalArgumentException();
     }
