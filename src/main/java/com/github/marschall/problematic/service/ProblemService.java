@@ -22,6 +22,7 @@ public class ProblemService {
     this.problems.put(ProblemType.PROBLEM_4, new Problem4());
     this.problems.put(ProblemType.PROBLEM_5, new Problem5());
     this.problems.put(ProblemType.PROBLEM_6, new Problem6());
+    this.problems.put(ProblemType.PROBLEM_7, new Problem7());
     this.problems.put(ProblemType.PROBLEM_9, new Problem9());
     this.problems.put(ProblemType.PROBLEM_10, new Problem10());
     this.problems.put(ProblemType.PROBLEM_11, new Problem11());

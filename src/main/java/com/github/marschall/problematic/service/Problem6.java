@@ -19,7 +19,7 @@ final class Problem6 implements Problem {
   
   Problem6() {
     this.barrier = new CyclicBarrier(2);
-    this.backgroundThread = new Thread(this::spin, "background-thread");
+    this.backgroundThread = new Thread(this::spin, "background-worker");
     this.backgroundThread.setDaemon(true);
   }
 
@@ -29,10 +29,10 @@ final class Problem6 implements Problem {
         Thread.sleep(TimeUnit.SECONDS.toMillis(5L));
         this.barrier.await();
       } catch (InterruptedException e) {
-        LOG.debug("interrupted, existing", e);
+        LOG.trace("interrupted, existing", e);
         return;
       } catch (BrokenBarrierException e) {
-        LOG.debug("broken barrier, existing", e);
+        LOG.trace("broken barrier, existing", e);
         return;
       }
     }
@@ -68,10 +68,15 @@ final class Problem6 implements Problem {
         if (toWait <= 0) {
           break;
         }
-        this.barrier.await(toWait, TimeUnit.MILLISECONDS);
+        try {
+          this.barrier.await(toWait, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+          LOG.trace("await timeout", e);
+          break;
+        }
       }
-    } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-      LOG.debug("wait failed: {}", e);
+    } catch (InterruptedException | BrokenBarrierException e) {
+      LOG.debug("await failed", e);
     }
     return "OK";
   }
