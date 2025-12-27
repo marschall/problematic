@@ -3,7 +3,7 @@ package com.github.marschall.problematic.service;
 import java.util.LinkedList;
 import java.util.List;
 
-final class Problem2 implements Problem {
+final class Problem2 extends AbstractProblem {
   
   private static final int SKIP = 1;
 

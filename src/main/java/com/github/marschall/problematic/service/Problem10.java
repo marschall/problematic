@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class Problem10 implements Problem {
+final class Problem10 extends AbstractProblem {
 
   @Override
   public int getHighStrength() {

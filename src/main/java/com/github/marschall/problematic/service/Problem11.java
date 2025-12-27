@@ -3,7 +3,7 @@ package com.github.marschall.problematic.service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-final class Problem11 implements Problem {
+final class Problem11 extends AbstractProblem {
 
   @Override
   public int getHighStrength() {

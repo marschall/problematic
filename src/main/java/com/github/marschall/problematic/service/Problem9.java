@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class Problem9 implements Problem {
+final class Problem9 extends AbstractProblem {
 
   private final AtomicInteger classCounter;
 

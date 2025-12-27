@@ -2,7 +2,7 @@ package com.github.marschall.problematic.service;
 
 import java.util.Arrays;
 
-final class Problem1 implements Problem {
+final class Problem1 extends AbstractProblem {
 
   @Override
   public int getHighStrength() {

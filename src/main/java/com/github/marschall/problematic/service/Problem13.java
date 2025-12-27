@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-final class Problem13 implements Problem {
+final class Problem13 extends AbstractProblem {
 
   @Override
   public int getHighStrength() {

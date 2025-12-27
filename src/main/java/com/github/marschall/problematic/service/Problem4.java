@@ -5,7 +5,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-final class Problem4 implements Problem {
+final class Problem4 extends AbstractProblem {
 
   @Override
   public int getHighStrength() {
