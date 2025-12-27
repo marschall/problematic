@@ -20,15 +20,11 @@ class ProblemServiceTests {
     this.service.shutDown();
   }
 
-  /**
-   * @param problemType
-   */
   @ParameterizedTest
   @EnumSource(
       value = ProblemType.class,
       names = {"PROBLEM_1", "PROBLEM_2", "PROBLEM_3", "PROBLEM_4", "PROBLEM_5", "PROBLEM_6", "PROBLEM_7",
               "PROBLEM_9", "PROBLEM_10", "PROBLEM_11", "PROBLEM_12", "PROBLEM_13"})
-//  names = {"PROBLEM_7"})
   void withLowStrength(ProblemType problemType) {
     this.service.withLowStrength(problemType);
   }

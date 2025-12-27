@@ -2,10 +2,9 @@ package com.github.marschall.problematic.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.lang.foreign.MemorySegment;
-
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class CrashServiceTests {
 
@@ -16,20 +15,12 @@ class CrashServiceTests {
     this.service = new CrashService();
   }
 
-  @Test
-  void crash1() {
-    assertThrows(OutOfMemoryError.class, this.service::crash1);
-  }
-
-  @Test
-  void crash2() {
-    assertThrows(OutOfMemoryError.class, this.service::crash2);
-  }
-
-  @Test
-  void requestAndReleaseMemory() {
-    MemorySegment segment = CrashService.requestMemory();
-    CrashService.releaseMemory(segment);
+  @ParameterizedTest
+  @EnumSource(
+      value = CrashType.class,
+      names = {"CRASH_1", "CRASH_3"})
+  void crash(CrashType crashType) {
+    assertThrows(OutOfMemoryError.class, () -> this.service.crash(crashType));
   }
 
 }
