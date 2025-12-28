@@ -180,9 +180,9 @@
             https://bugs.openjdk.org/browse/JDK-8244190
            -->
           <argLine>
-            -Xcheck:jni
             -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=5m,settings=profile
             -Xlog:jfr+startup=error
+            -Xmx512m
           </argLine>
         </configuration>
       </plugin>

@@ -16,6 +16,7 @@ public class CrashService {
     this.crashes.put(CrashType.CRASH_2, new Crash2());
     this.crashes.put(CrashType.CRASH_3, new Crash3());
     this.crashes.put(CrashType.CRASH_4, new Crash4());
+    this.crashes.put(CrashType.CRASH_5, new Crash5());
   }
 
   public Object crash(CrashType crashType) {

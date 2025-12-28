@@ -5,6 +5,7 @@ public enum CrashType {
   CRASH_1,
   CRASH_2,
   CRASH_3,
-  CRASH_4;
+  CRASH_4,
+  CRASH_5;
 
 }
