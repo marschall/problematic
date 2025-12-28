@@ -1,7 +1,5 @@
 package com.github.marschall.problematic.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.lang.foreign.MemorySegment;
 
 import org.junit.jupiter.api.Test;

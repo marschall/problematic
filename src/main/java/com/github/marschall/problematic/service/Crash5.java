@@ -14,6 +14,10 @@ import com.github.marschall.problematic.ffi.Unistd;
 import com.sun.management.HotSpotDiagnosticMXBean;
 import com.sun.management.VMOption;
 
+/*
+ * try to allocate max free direct memory
+ * fail if -XX:MaxRAMPercentage > 50% and -XX:MaxDirectMemorySize hasn't been adjusted
+ */
 final class Crash5 implements Crash {
   
   /*
@@ -21,6 +25,8 @@ final class Crash5 implements Crash {
    * Large allocations 
    */
   private static final int MAX_ALLOCATION_SIZE = 8 * 1024 * 1024;
+  
+  private static final int ONE_MB = 1 * 1024 * 1024;
 
   private static final String DIRECT_BUFFER_POOL_NAME = "java.nio:type=BufferPool,name=direct";
   private final BufferPoolMXBean directBufferPool;
@@ -38,11 +44,10 @@ final class Crash5 implements Crash {
 
   @Override
   public Object crash() {
-    // try to allocate max free direct memory
-    // fail if -XX:MaxRAMPercentage > 50% and -XX:MaxDirectMemorySize hasn't been adjusted
     System.gc();
     // make sure heap is expanded to maximum size
-    this.enlargeHeap();
+    // for cases where Xms < Xmx
+    enlargeHeap();
     long maxDirectMemory = getMaxDirectMemory();
     long used = this.directBufferPool.getMemoryUsed();
     long available = maxDirectMemory - used;
@@ -92,9 +97,31 @@ final class Crash5 implements Crash {
 
   }
 
-  void enlargeHeap() {
+  static void enlargeHeap() {
     long freeMemory = Runtime.getRuntime().freeMemory();
-    // TODO
+    allocateMemory(freeMemory);
+  }
+  
+  static void allocateMemory(long bytes) {
+    long remaining = bytes;
+    List<byte[]> buffers = new ArrayList<>();
+    while (remaining > 0) {
+      int toAllocate;
+      int toSubtract;
+      if (remaining > ONE_MB) {
+        toAllocate = remaining > ONE_MB ? ONE_MB - 16 : (int) remaining - 16;
+        toSubtract = (int) ONE_MB;
+      } else {
+        toAllocate = (int) remaining - 16;
+        toSubtract = (int) remaining;
+      }
+      if (toAllocate > 0) {
+        buffers.add(new byte[toAllocate]);
+        remaining -= toSubtract;
+      } else {
+        break;
+      }
+    }
   }
 
   @Override

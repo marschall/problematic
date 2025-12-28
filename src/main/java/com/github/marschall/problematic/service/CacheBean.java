@@ -15,7 +15,14 @@ public class CacheBean {
     this.root.initializeNodes();
   }
 
-
+  /*
+   * A full root is 1 GB.
+   * 
+   * root
+   *  - 1024 nodes
+   *    - 1024 leaves
+   *      - 1024 B payload
+   */
   static final class Root {
 
     private final List<Node> nodes;

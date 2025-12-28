@@ -15,6 +15,11 @@ import java.util.List;
 
 import com.github.marschall.problematic.ffi.Unistd;
 
+/*
+ * Request as much memory from OS as possible.
+ * Once we hit limit touch the pages, this should result in an OOM kill as not enough
+ * physical memory is available.
+ */
 final class Crash4 implements Crash {
 
   @Override
