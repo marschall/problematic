@@ -1,5 +1,6 @@
 package com.github.marschall.problematic.service;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,8 +13,13 @@ public class ProblematicConfiguration {
   }
 
   @Bean
-  public CrashService crashService() {
-    return new CrashService();
+  public CrashService crashService(ApplicationContext applicationContext) {
+    return new CrashService(applicationContext);
+  }
+
+  @Bean
+  public CacheHolder cacheHolder() {
+    return new CacheHolder();
   }
 
 }

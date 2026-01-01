@@ -93,6 +93,12 @@
       <version>2.4.240</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.openjdk.jol</groupId>
+      <artifactId>jol-core</artifactId>
+      <version>0.17</version>
+      <scope>test</scope>
+    </dependency>
     <!-- junit -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -102,6 +108,11 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- logging-->
@@ -183,6 +194,7 @@
             -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=5m,settings=profile
             -Xlog:jfr+startup=error
             -Xmx512m
+            --enable-native-access=ALL-UNNAMED
           </argLine>
         </configuration>
       </plugin>
