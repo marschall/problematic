@@ -94,9 +94,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.openjdk.jol</groupId>
-      <artifactId>jol-core</artifactId>
-      <version>0.17</version>
+      <groupId>com.github.marschall</groupId>
+      <artifactId>jol-agent</artifactId>
+      <version>0.17.1</version>
       <scope>test</scope>
     </dependency>
     <!-- junit -->
@@ -162,6 +162,16 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links>
@@ -194,8 +204,13 @@
             -XX:StartFlightRecording:filename=${project.build.directory}/recording.jfr,dumponexit=true,maxsize=5m,settings=profile
             -Xlog:jfr+startup=error
             -Xmx512m
+            -javaagent:@{com.github.marschall:jol-agent:jar}
+            --sun-misc-unsafe-memory-access=allow
             --enable-native-access=ALL-UNNAMED
           </argLine>
+          <classpathDependencyExcludes>
+            <classpathDependencyExclude>com.github.marschall:jol-agent</classpathDependencyExclude>
+          </classpathDependencyExcludes>
         </configuration>
       </plugin>
       <plugin>
@@ -232,6 +247,10 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.9.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
