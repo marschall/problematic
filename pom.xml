@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.marschall</groupId>
   <artifactId>problematic</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <inceptionYear>2025</inceptionYear>
   <name>Problematic</name>
   <description>A collection of code that exhibits problematic runtime behavior.</description>
@@ -14,7 +14,7 @@
     <connection>scm:git:git@github.com:marschall/problematic.git</connection>
     <developerConnection>scm:git:git@github.com:marschall/problematic.git</developerConnection>
     <url>${project.url}</url>
-    <tag>1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
@@ -328,7 +328,7 @@
 
   <properties>
     <maven.compiler.release>25</maven.compiler.release>
-    <project.build.outputTimestamp>2026-05-01T07:04:42Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-05-01T07:04:55Z</project.build.outputTimestamp>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
